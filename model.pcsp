@@ -28,7 +28,7 @@ var win_prob[91]:{1..1000} = [
 ];
 
 // configurable vars
-var player_blind = small_blind; // small_blind, big_blind
+var player_blind = big_blind; // small_blind, big_blind
 var player_hand:{1..91} = 4;
 OppMove = OppConservativeBluff; // Opp<Balanced, Aggressive, Conservative>Bluff
 
