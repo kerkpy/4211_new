@@ -1,0 +1,265 @@
+#define starting_stack 20;
+#define raise_size_1 2;
+#define raise_size_2 4;
+#define raise_size_3 6;
+#define small_blind_bet 1;
+#define big_blind_bet 2;
+#define move_limit 3;
+#define ev_threshold 1000;
+
+enum{ big_blind, small_blind };
+enum{ player, opponent, na };
+
+var win_prob[91]:{1..1000} = [
+          // 2    3    4    5    6    7    8    9    10   J    Q    K    A
+        	493,        	        	        	        	        	// 2
+        	302, 529,        	        	        	        	        // 3
+        	311, 330, 563,        	        	        	        	    // 4
+        	321, 340, 360, 596,        	        	        	        	// 5
+        	320, 340, 359, 378, 627,        	        	        	    // 6
+        	326, 346, 365, 385, 404, 657,        	        	        	// 7
+        	350, 356, 375, 396, 415, 434, 687,        	        	        // 8
+        	374, 383, 389, 409, 429, 448, 468, 717,        	        	    // 9
+        	401, 409, 418, 426, 446, 465, 485, 505, 747,        	        // 10
+        	428, 438, 446, 456, 464, 484, 504, 523, 544, 771,        	    // J
+        	459, 468, 477, 486, 497, 505, 526, 545, 565, 574, 796,        	// Q
+        	491, 500, 509, 519, 529, 540, 550, 570, 590, 599, 609, 821,        // K
+        	536, 545, 553, 563, 564, 577, 589, 600, 620, 630, 640, 649, 849    // A
+];
+
+// configurable vars
+var player_blind = small_blind; // small_blind, big_blind
+var player_hand:{1..91} = 4;
+OppMove = OppConservativeBluff; // Opp<Balanced, Aggressive, Conservative>Bluff
+
+var player_stack = starting_stack;
+var opp_stack = starting_stack;
+var opp_hand:{1..91} = 1;
+var pot = 0;
+var highest_bet = big_blind_bet;
+var winner = na;
+var profit = 0;
+var move_counter = 0;
+var final = false;
+
+PreFlop = PlaceMinBet; DealHoleCards;
+          if (player_blind == small_blind) { PlayerMove } else { OppMove };
+PlaceMinBet = bet{
+                  pot = pot + small_blind_bet + big_blind_bet;
+                  if (player_blind == small_blind) {
+                      player_stack = player_stack - small_blind_bet;
+                      opp_stack = opp_stack - big_blind_bet;
+                  } else {
+                      player_stack = player_stack - big_blind_bet;
+                      opp_stack = opp_stack - small_blind_bet;
+                  }
+              } -> Skip;
+
+DealHoleCards = pcase {
+    1: if (1 == player_hand) { DealHoleCards } else { opphand{opp_hand = 1} -> Skip }
+    1: if (2 == player_hand) { DealHoleCards } else { opphand{opp_hand = 2} -> Skip }
+    1: if (3 == player_hand) { DealHoleCards } else { opphand{opp_hand = 3} -> Skip }
+    1: if (4 == player_hand) { DealHoleCards } else { opphand{opp_hand = 4} -> Skip }
+    1: if (5 == player_hand) { DealHoleCards } else { opphand{opp_hand = 5} -> Skip }
+    1: if (6 == player_hand) { DealHoleCards } else { opphand{opp_hand = 6} -> Skip }
+    1: if (7 == player_hand) { DealHoleCards } else { opphand{opp_hand = 7} -> Skip }
+    1: if (8 == player_hand) { DealHoleCards } else { opphand{opp_hand = 8} -> Skip }
+    1: if (9 == player_hand) { DealHoleCards } else { opphand{opp_hand = 9} -> Skip }
+    1: if (10 == player_hand) { DealHoleCards } else { opphand{opp_hand = 10} -> Skip }
+    1: if (11 == player_hand) { DealHoleCards } else { opphand{opp_hand = 11} -> Skip }
+    1: if (12 == player_hand) { DealHoleCards } else { opphand{opp_hand = 12} -> Skip }
+    1: if (13 == player_hand) { DealHoleCards } else { opphand{opp_hand = 13} -> Skip }
+    1: if (14 == player_hand) { DealHoleCards } else { opphand{opp_hand = 14} -> Skip }
+    1: if (15 == player_hand) { DealHoleCards } else { opphand{opp_hand = 15} -> Skip }
+    1: if (16 == player_hand) { DealHoleCards } else { opphand{opp_hand = 16} -> Skip }
+    1: if (17 == player_hand) { DealHoleCards } else { opphand{opp_hand = 17} -> Skip }
+    1: if (18 == player_hand) { DealHoleCards } else { opphand{opp_hand = 18} -> Skip }
+    1: if (19 == player_hand) { DealHoleCards } else { opphand{opp_hand = 19} -> Skip }
+    1: if (20 == player_hand) { DealHoleCards } else { opphand{opp_hand = 20} -> Skip }
+    1: if (21 == player_hand) { DealHoleCards } else { opphand{opp_hand = 21} -> Skip }
+    1: if (22 == player_hand) { DealHoleCards } else { opphand{opp_hand = 22} -> Skip }
+    1: if (23 == player_hand) { DealHoleCards } else { opphand{opp_hand = 23} -> Skip }
+    1: if (24 == player_hand) { DealHoleCards } else { opphand{opp_hand = 24} -> Skip }
+    1: if (25 == player_hand) { DealHoleCards } else { opphand{opp_hand = 25} -> Skip }
+    1: if (26 == player_hand) { DealHoleCards } else { opphand{opp_hand = 26} -> Skip }
+    1: if (27 == player_hand) { DealHoleCards } else { opphand{opp_hand = 27} -> Skip }
+    1: if (28 == player_hand) { DealHoleCards } else { opphand{opp_hand = 28} -> Skip }
+    1: if (29 == player_hand) { DealHoleCards } else { opphand{opp_hand = 29} -> Skip }
+    1: if (30 == player_hand) { DealHoleCards } else { opphand{opp_hand = 30} -> Skip }
+    1: if (31 == player_hand) { DealHoleCards } else { opphand{opp_hand = 31} -> Skip }
+    1: if (32 == player_hand) { DealHoleCards } else { opphand{opp_hand = 32} -> Skip }
+    1: if (33 == player_hand) { DealHoleCards } else { opphand{opp_hand = 33} -> Skip }
+    1: if (34 == player_hand) { DealHoleCards } else { opphand{opp_hand = 34} -> Skip }
+    1: if (35 == player_hand) { DealHoleCards } else { opphand{opp_hand = 35} -> Skip }
+    1: if (36 == player_hand) { DealHoleCards } else { opphand{opp_hand = 36} -> Skip }
+    1: if (37 == player_hand) { DealHoleCards } else { opphand{opp_hand = 37} -> Skip }
+    1: if (38 == player_hand) { DealHoleCards } else { opphand{opp_hand = 38} -> Skip }
+    1: if (39 == player_hand) { DealHoleCards } else { opphand{opp_hand = 39} -> Skip }
+    1: if (40 == player_hand) { DealHoleCards } else { opphand{opp_hand = 40} -> Skip }
+    1: if (41 == player_hand) { DealHoleCards } else { opphand{opp_hand = 41} -> Skip }
+    1: if (42 == player_hand) { DealHoleCards } else { opphand{opp_hand = 42} -> Skip }
+    1: if (43 == player_hand) { DealHoleCards } else { opphand{opp_hand = 43} -> Skip }
+    1: if (44 == player_hand) { DealHoleCards } else { opphand{opp_hand = 44} -> Skip }
+    1: if (45 == player_hand) { DealHoleCards } else { opphand{opp_hand = 45} -> Skip }
+    1: if (46 == player_hand) { DealHoleCards } else { opphand{opp_hand = 46} -> Skip }
+    1: if (47 == player_hand) { DealHoleCards } else { opphand{opp_hand = 47} -> Skip }
+    1: if (48 == player_hand) { DealHoleCards } else { opphand{opp_hand = 48} -> Skip }
+    1: if (49 == player_hand) { DealHoleCards } else { opphand{opp_hand = 49} -> Skip }
+    1: if (50 == player_hand) { DealHoleCards } else { opphand{opp_hand = 50} -> Skip }
+    1: if (51 == player_hand) { DealHoleCards } else { opphand{opp_hand = 51} -> Skip }
+    1: if (52 == player_hand) { DealHoleCards } else { opphand{opp_hand = 52} -> Skip }
+    1: if (53 == player_hand) { DealHoleCards } else { opphand{opp_hand = 53} -> Skip }
+    1: if (54 == player_hand) { DealHoleCards } else { opphand{opp_hand = 54} -> Skip }
+    1: if (55 == player_hand) { DealHoleCards } else { opphand{opp_hand = 55} -> Skip }
+    1: if (56 == player_hand) { DealHoleCards } else { opphand{opp_hand = 56} -> Skip }
+    1: if (57 == player_hand) { DealHoleCards } else { opphand{opp_hand = 57} -> Skip }
+    1: if (58 == player_hand) { DealHoleCards } else { opphand{opp_hand = 58} -> Skip }
+    1: if (59 == player_hand) { DealHoleCards } else { opphand{opp_hand = 59} -> Skip }
+    1: if (60 == player_hand) { DealHoleCards } else { opphand{opp_hand = 60} -> Skip }
+    1: if (61 == player_hand) { DealHoleCards } else { opphand{opp_hand = 61} -> Skip }
+    1: if (62 == player_hand) { DealHoleCards } else { opphand{opp_hand = 62} -> Skip }
+    1: if (63 == player_hand) { DealHoleCards } else { opphand{opp_hand = 63} -> Skip }
+    1: if (64 == player_hand) { DealHoleCards } else { opphand{opp_hand = 64} -> Skip }
+    1: if (65 == player_hand) { DealHoleCards } else { opphand{opp_hand = 65} -> Skip }
+    1: if (66 == player_hand) { DealHoleCards } else { opphand{opp_hand = 66} -> Skip }
+    1: if (67 == player_hand) { DealHoleCards } else { opphand{opp_hand = 67} -> Skip }
+    1: if (68 == player_hand) { DealHoleCards } else { opphand{opp_hand = 68} -> Skip }
+    1: if (69 == player_hand) { DealHoleCards } else { opphand{opp_hand = 69} -> Skip }
+    1: if (70 == player_hand) { DealHoleCards } else { opphand{opp_hand = 70} -> Skip }
+    1: if (71 == player_hand) { DealHoleCards } else { opphand{opp_hand = 71} -> Skip }
+    1: if (72 == player_hand) { DealHoleCards } else { opphand{opp_hand = 72} -> Skip }
+    1: if (73 == player_hand) { DealHoleCards } else { opphand{opp_hand = 73} -> Skip }
+    1: if (74 == player_hand) { DealHoleCards } else { opphand{opp_hand = 74} -> Skip }
+    1: if (75 == player_hand) { DealHoleCards } else { opphand{opp_hand = 75} -> Skip }
+    1: if (76 == player_hand) { DealHoleCards } else { opphand{opp_hand = 76} -> Skip }
+    1: if (77 == player_hand) { DealHoleCards } else { opphand{opp_hand = 77} -> Skip }
+    1: if (78 == player_hand) { DealHoleCards } else { opphand{opp_hand = 78} -> Skip }
+    1: if (79 == player_hand) { DealHoleCards } else { opphand{opp_hand = 79} -> Skip }
+    1: if (80 == player_hand) { DealHoleCards } else { opphand{opp_hand = 80} -> Skip }
+    1: if (81 == player_hand) { DealHoleCards } else { opphand{opp_hand = 81} -> Skip }
+    1: if (82 == player_hand) { DealHoleCards } else { opphand{opp_hand = 82} -> Skip }
+    1: if (83 == player_hand) { DealHoleCards } else { opphand{opp_hand = 83} -> Skip }
+    1: if (84 == player_hand) { DealHoleCards } else { opphand{opp_hand = 84} -> Skip }
+    1: if (85 == player_hand) { DealHoleCards } else { opphand{opp_hand = 85} -> Skip }
+    1: if (86 == player_hand) { DealHoleCards } else { opphand{opp_hand = 86} -> Skip }
+    1: if (87 == player_hand) { DealHoleCards } else { opphand{opp_hand = 87} -> Skip }
+    1: if (88 == player_hand) { DealHoleCards } else { opphand{opp_hand = 88} -> Skip }
+    1: if (89 == player_hand) { DealHoleCards } else { opphand{opp_hand = 89} -> Skip }
+    1: if (90 == player_hand) { DealHoleCards } else { opphand{opp_hand = 90} -> Skip }
+    1: if (91 == player_hand) { DealHoleCards } else { opphand{opp_hand = 91} -> Skip }
+};
+
+Move = move{ move_counter++ } -> atomic{
+           if (move_counter >= move_limit) { Showdown } else { Skip }
+       };
+
+PlayerMove = PlayerCall [] [move_counter + 1 < move_limit] PlayerRaise(raise_size_1);
+
+OppBalancedBluff = pcase {
+    // rational play based on EV
+    7: if ((win_prob[opp_hand - 1] - move_counter * 100)
+        * (highest_bet - (starting_stack - opp_stack) + pot)
+        - ((1000 - (win_prob[opp_hand - 1] - move_counter * 100))
+        * (highest_bet - (starting_stack - opp_stack))) < ev_threshold) {
+        	OppFold } else { OppBalanced }
+    // bluff
+    3: OppBalanced
+};
+
+OppBalanced = pcase {
+    1 : OppCall 
+    1 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_1) } else { OppCall }
+    1 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_2) } else { OppCall }
+    1 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_3) } else { OppCall }
+};
+
+OppAggressiveBluff = pcase {
+    // rational play based on EV
+    5: if ((win_prob[opp_hand - 1] - move_counter * 100)
+        * (highest_bet - (starting_stack - opp_stack) + pot)
+        - ((1000 - (win_prob[opp_hand - 1] - move_counter * 100))
+        * (highest_bet - (starting_stack - opp_stack))) < ev_threshold) {
+        	OppFold } else { OppAggressive }
+    // bluff
+    5: OppAggressive
+};
+
+OppAggressive = pcase {
+    1 : OppCall 
+    2 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_1) } else { OppCall }
+    3 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_2) } else { OppCall }
+    4 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_3) } else { OppCall }
+};
+
+OppConservativeBluff = pcase {
+    // rational play based on EV
+    9: if ((win_prob[opp_hand - 1] - move_counter * 100)
+        * (highest_bet - (starting_stack - opp_stack) + pot)
+        - ((1000 - (win_prob[opp_hand - 1] - move_counter * 100))
+        * (highest_bet - (starting_stack - opp_stack))) < ev_threshold) {
+        	OppFold } else { OppConservative }
+    // bluff
+    1: OppConservative
+};
+
+OppConservative = pcase {
+    4 : OppCall
+    2 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_1) } else { OppCall }
+    2 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_2) } else { OppCall }
+    1 : if (move_counter + 1 < move_limit) { OppRaise(raise_size_3) } else { OppCall }
+};
+
+OppFold = opp_fold{ winner = player; move_counter++; } -> DistributePot;
+
+PlayerBet = player_bet{
+        	    var add_bet = highest_bet - (starting_stack - player_stack); 
+        	    player_stack = player_stack - add_bet; pot = pot + add_bet;
+        	} -> Skip;
+OppBet = opp_bet{
+             var add_bet = highest_bet - (starting_stack - opp_stack); 
+              opp_stack = opp_stack - add_bet; pot = pot + add_bet;
+         } -> Skip;
+
+PlayerCall = PlayerBet; Move; if (move_counter <= 1) { OppMove } else { Showdown };
+OppCall = OppBet; Move; if (move_counter <= 1) { PlayerMove } else { Showdown };
+
+PlayerRaise(size) = player_raise.size{ highest_bet = highest_bet + size; } -> Skip;
+        	        PlayerBet; Move; OppMove;
+OppRaise(size) = opp_raise.size{ highest_bet = highest_bet + size } -> Skip;
+        	     OppBet; Move; PlayerMove;
+
+Showdown = if (win_prob[player_hand - 1] > win_prob[opp_hand - 1]) {
+               player_won{ winner = player; } -> DistributePot
+           } else {
+               opp_won{ winner = opponent; } -> DistributePot
+           };
+DistributePot = if (winner == player) {
+        	        distribute{player_stack = player_stack + pot; } -> Skip
+        	    }; CalculateProfit;
+CalculateProfit = calc_profit{
+        	          profit = player_stack - starting_stack;
+                      final = true
+                  } -> EndGame;
+EndGame = end -> EndGame;
+
+#assert PreFlop deadlockfree;
+#define reach_final final;
+#assert PreFlop reaches reach_final;
+#define player_win winner == player && final;
+#assert PreFlop reaches player_win;
+#define player_win_profit profit > 0 && final;
+#assert PreFlop reaches player_win_profit with prob;
+#assert PreFlop reaches player_win_profit with max(profit);
+#assert PreFlop reaches player_win_profit with min(profit);
+
+// finding probability of player winning a certain amount
+#define player_win_2 profit == 2 && final;
+#assert PreFlop reaches player_win_2 with prob;
+#define player_win_4 profit == 4 && final;
+#assert PreFlop reaches player_win_4 with prob;
+#define player_win_6 profit == 6 && final;
+#assert PreFlop reaches player_win_6 with prob;
+#define player_win_8 profit == 8 && final;
+#assert PreFlop reaches player_win_8 with prob;
+#define player_win_10 profit == 10 && final;
+#assert PreFlop reaches player_win_10 with prob;
