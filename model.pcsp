@@ -153,7 +153,9 @@ Move = move{ move_counter++ } -> atomic{
            if (move_counter >= move_limit) { Showdown } else { Skip }
        };
 
-PlayerMove = PlayerCall [] [move_counter + 1 < move_limit] PlayerRaise(raise_size_1);
+PlayerMove = PlayerCall [] [move_counter + 1 < move_limit] PlayerRaise(raise_size_1) []
+             [move_counter + 1 < move_limit] PlayerRaise(raise_size_2) []
+             [move_counter + 1 < move_limit] PlayerRaise(raise_size_3);
 
 OppBalancedBluff = pcase {
     // rational play based on EV
@@ -263,3 +265,23 @@ EndGame = end -> EndGame;
 #assert PreFlop reaches player_win_8 with prob;
 #define player_win_10 profit == 10 && final;
 #assert PreFlop reaches player_win_10 with prob;
+#define player_win_12 profit == 12 && final;
+#assert PreFlop reaches player_win_12 with prob;
+#define player_win_14 profit == 14 && final;
+#assert PreFlop reaches player_win_14 with prob;
+
+// finding probability of player losing a certain amount
+#define player_lose_2 profit == -2 && final;
+#assert PreFlop reaches player_lose_2 with prob;
+#define player_lose_4 profit == -4 && final;
+#assert PreFlop reaches player_lose_4 with prob;
+#define player_lose_6 profit == -6 && final;
+#assert PreFlop reaches player_lose_6 with prob;
+#define player_lose_8 profit == -8 && final;
+#assert PreFlop reaches player_lose_8 with prob;
+#define player_lose_10 profit == -10 && final;
+#assert PreFlop reaches player_lose_10 with prob;
+#define player_lose_12 profit == -12 && final;
+#assert PreFlop reaches player_lose_12 with prob;
+#define player_lose_14 profit == -14 && final;
+#assert PreFlop reaches player_lose_14 with prob;
